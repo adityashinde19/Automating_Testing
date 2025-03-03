@@ -1,0 +1,47 @@
+.venv/
+__pycache__/
+*.venv
+test_image/
+
+# Byte-compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+*.egg
+*.cache/
+ 
+# Virtual environment
+venv/
+*.venv
+env/
+ 
+# Test artifacts
+.tox/
+pytest_cache/
+ 
+# Logs
+*.log
+ 
+# Local configuration
+*.cfg
+*.local
+ 
+# IDE and editor directories/files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*.bak
+*.db
+ 
+# Other common unnecessary files
+*.DS_Store
+ 
+# Database files
+*.sqlite3
+*.db
+ 
+# Cache directories for popular Python packages
+pip-wheel-metadata/

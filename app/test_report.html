@@ -1,0 +1,301 @@
+
+        <html>
+        <head>
+            <title>Test Automation Report</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+            <style>
+                .test-details {
+                    padding: 15px;
+                    background: #f8f9fa;
+                    border-radius: 5px;
+                    margin: 10px 0;
+                }
+                .details-row {
+                    display: none;
+                }
+                .toggle-details {
+                    margin: 2px;
+                }
+                .chart-container {
+                    width: 100%;
+                    max-width: 800px;
+                    margin: 20px auto;
+                }
+                pre {
+                    background: #e9ecef;
+                    padding: 10px;
+                    border-radius: 5px;
+                }
+            </style>
+        </head>
+        <body class="container mt-4">
+            <h1 class="mb-4">Test Automation Report</h1>
+            
+            <!-- Summary Section -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Summary</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p>Total Tests: 4</p>
+                            <p>Passed: 2</p>
+                            <p>Failed: 2</p>
+                            <p>Execution Time: 14.04 seconds</p>
+                        </div>
+                        <div class="col-md-6 chart-container">
+                            <canvas id="summaryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Results Table -->
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+            <tr class="table-success">
+                <td>TC-001</td>
+                <td>Successful Registration</td>
+                <td>Passed</td>
+                <td>High</td>
+                <td>
+                    <button class="btn btn-sm btn-info toggle-details">View Details</button>
+                </td>
+            </tr>
+            <tr class="details-row">
+                <td colspan="5">
+            <div class="test-details">
+                <h5>Credentials Used:</h5>
+                <ul>
+                    <li>Enter a valid username: testuser</li><li>Enter a valid password (at least 6 characters): Password123</li><li>Confirm password: Password123</li>
+                </ul>
+                <h5>Steps Executed:</h5>
+                <ol>
+                <li>
+                    <strong>Action:</strong> Enter a valid username<br>
+                    <strong>Selector:</strong> id = username<br>
+                    <strong>Value:</strong> testuser
+                </li>
+                
+                <li>
+                    <strong>Action:</strong> Enter a valid password (at least 6 characters)<br>
+                    <strong>Selector:</strong> id = password<br>
+                    <strong>Value:</strong> Password123
+                </li>
+                
+                <li>
+                    <strong>Action:</strong> Confirm password<br>
+                    <strong>Selector:</strong> id = confirmPassword<br>
+                    <strong>Value:</strong> Password123
+                </li>
+                
+                <li>
+                    <strong>Action:</strong> Click the Register button<br>
+                    <strong>Selector:</strong> data-testid = registerButton<br>
+                    <strong>Value:</strong> None
+                </li>
+                </ol>
+                <h5>Expected Results:</h5>
+                <ul><li>Success message 'Registration successful!' is displayed</li><li>The success message element with data-testid='successMessage' has text 'Registration successful!'</li></ul>
+                <h5>Error Details:</h5>
+                <pre>None</pre>
+            </div>
+            </td>
+            </tr>
+            
+            <tr class="table-danger">
+                <td>TC-002</td>
+                <td>Invalid Password Length</td>
+                <td>Failed</td>
+                <td>High</td>
+                <td>
+                    <button class="btn btn-sm btn-info toggle-details">View Details</button>
+                </td>
+            </tr>
+            <tr class="details-row">
+                <td colspan="5">
+            <div class="test-details">
+                <h5>Credentials Used:</h5>
+                <ul>
+                    <li>Enter a username: testuser2</li><li>Enter a password shorter than 6 characters: Short</li><li>Confirm password: Short</li>
+                </ul>
+                <h5>Steps Executed:</h5>
+                <ol>
+                <li>
+                    <strong>Action:</strong> Enter a username<br>
+                    <strong>Selector:</strong> id = username<br>
+                    <strong>Value:</strong> testuser2
+                </li>
+                
+                <li>
+                    <strong>Action:</strong> Enter a password shorter than 6 characters<br>
+                    <strong>Selector:</strong> id = password<br>
+                    <strong>Value:</strong> Short
+                </li>
+                
+                <li>
+                    <strong>Action:</strong> Confirm password<br>
+                    <strong>Selector:</strong> id = confirmPassword<br>
+                    <strong>Value:</strong> Short
+                </li>
+                
+                <li>
+                    <strong>Action:</strong> Click the Register button<br>
+                    <strong>Selector:</strong> data-testid = registerButton<br>
+                    <strong>Value:</strong> None
+                </li>
+                </ol>
+                <h5>Expected Results:</h5>
+                <ul><li>Error message 'Password must be at least 6 characters long.' is displayed</li><li>The element with id='passwordError' is visible</li></ul>
+                <h5>Error Details:</h5>
+                <pre>Expected error message not found</pre>
+            </div>
+            </td>
+            </tr>
+            
+            <tr class="table-danger">
+                <td>TC-003</td>
+                <td>Password Mismatch</td>
+                <td>Failed</td>
+                <td>High</td>
+                <td>
+                    <button class="btn btn-sm btn-info toggle-details">View Details</button>
+                </td>
+            </tr>
+            <tr class="details-row">
+                <td colspan="5">
+            <div class="test-details">
+                <h5>Credentials Used:</h5>
+                <ul>
+                    <li>Enter a username: testuser3</li><li>Enter a password: Password1234</li><li>Enter a different password in the confirm password field: DifferentPassword</li>
+                </ul>
+                <h5>Steps Executed:</h5>
+                <ol>
+                <li>
+                    <strong>Action:</strong> Enter a username<br>
+                    <strong>Selector:</strong> id = username<br>
+                    <strong>Value:</strong> testuser3
+                </li>
+                
+                <li>
+                    <strong>Action:</strong> Enter a password<br>
+                    <strong>Selector:</strong> id = password<br>
+                    <strong>Value:</strong> Password1234
+                </li>
+                
+                <li>
+                    <strong>Action:</strong> Enter a different password in the confirm password field<br>
+                    <strong>Selector:</strong> id = confirmPassword<br>
+                    <strong>Value:</strong> DifferentPassword
+                </li>
+                
+                <li>
+                    <strong>Action:</strong> Click the Register button<br>
+                    <strong>Selector:</strong> data-testid = registerButton<br>
+                    <strong>Value:</strong> None
+                </li>
+                </ol>
+                <h5>Expected Results:</h5>
+                <ul><li>Error message 'Passwords do not match.' is displayed</li><li>The element with id='confirmError' is visible</li></ul>
+                <h5>Error Details:</h5>
+                <pre>Expected error message not found</pre>
+            </div>
+            </td>
+            </tr>
+            
+            <tr class="table-success">
+                <td>TC-004</td>
+                <td>Empty Fields</td>
+                <td>Passed</td>
+                <td>Medium</td>
+                <td>
+                    <button class="btn btn-sm btn-info toggle-details">View Details</button>
+                </td>
+            </tr>
+            <tr class="details-row">
+                <td colspan="5">
+            <div class="test-details">
+                <h5>Credentials Used:</h5>
+                <ul>
+                    
+                </ul>
+                <h5>Steps Executed:</h5>
+                <ol>
+                <li>
+                    <strong>Action:</strong> Click the Register button without filling any fields<br>
+                    <strong>Selector:</strong> data-testid = registerButton<br>
+                    <strong>Value:</strong> None
+                </li>
+                </ol>
+                <h5>Expected Results:</h5>
+                <ul><li>Error messages are displayed for empty username, password, and confirm password fields (depending on the implementation)</li></ul>
+                <h5>Error Details:</h5>
+                <pre>None</pre>
+            </div>
+            </td>
+            </tr>
+            
+                </tbody>
+            </table>
+
+            <!-- JavaScript for Interactivity -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                // Toggle test details
+                document.querySelectorAll('.toggle-details').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const detailsRow = button.closest('tr').nextElementSibling;
+                        detailsRow.style.display = detailsRow.style.display === 'none' ? 'table-row' : 'none';
+                        button.textContent = button.textContent === 'Hide Details' ? 'Hide Details' : 'View Details';
+                    });
+                });
+
+                // Summary chart
+                const ctx = document.getElementById('summaryChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Passed', 'Failed'],
+                        datasets: [{
+                            label: 'Test Results',
+                            data: [
+                                2,
+                                2
+                            ],
+                            backgroundColor: [
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(255, 99, 132, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(255, 99, 132, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Test Results Summary'
+                            }
+                        }
+                    }
+                });
+            </script>
+        </body>
+        </html>
+        

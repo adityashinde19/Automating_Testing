@@ -1,0 +1,3 @@
+selenium
+langchain-google-genai
+smolagents
