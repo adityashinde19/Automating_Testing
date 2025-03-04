@@ -55,7 +55,16 @@ jobs:
                 max_tokens=2500
             )
             return response.choices[0].message.content
-            
+        
+        def strip_markdown(code):
+            # Remove markdown code block delimiters
+            lines = code.splitlines()
+            if lines[0].strip().startswith("```python"):
+                lines = lines[1:]
+            if lines[-1].strip() == "```":
+                lines = lines[:-1]
+            return "\n".join(lines)
+        
         def main():
             test_dir = "tests"
             os.makedirs(test_dir, exist_ok=True)
@@ -74,6 +83,7 @@ jobs:
                             code_content = f.read()
                         
                         test_code = generate_test_cases(code_content, file_path)
+                        test_code = strip_markdown(test_code)  # Remove markdown formatting
                         test_file = os.path.join(test_dir, f"test_{file}")
                         
                         with open(test_file, "w") as f:
