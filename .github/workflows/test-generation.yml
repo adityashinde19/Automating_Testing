@@ -24,7 +24,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install openai requests
+        pip install openai requests pytest pytest-cov coverage
 
     - name: Create and run test generator script
       env:
