@@ -10,10 +10,13 @@ def generate_test_cases(code_content, file_path):
         azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"]
     )
     
-    prompt = f"""Generate comprehensive test cases for the following code.The output should be valid Python pytest code. Include edge cases and exception handling.
+    prompt = f"""Generate comprehensive test cases for the following code. 
+        The output should be valid Python pytest code. 
+        Include edge cases and exception handling.
         Code file path: {file_path}
         Code content:
         {code_content}
+        
         Return only the Python test code without any explanations or markdown formatting."""
         
     response = client.chat.completions.create(
@@ -28,12 +31,24 @@ def generate_test_cases(code_content, file_path):
     return response.choices[0].message.content
 
 def clean_generated_code(test_code):
+    # Debug: Print the raw response before cleaning
+    print("Raw response from OpenAI API:")
+    print(test_code)
+    
     # Remove markdown code block delimiters (```python and ```)
     if test_code.startswith("```python"):
         test_code = test_code[len("```python"):]
     if test_code.endswith("```"):
         test_code = test_code[:-len("```")]
-    return test_code.strip()
+    
+    # Remove any leading/trailing whitespace or newlines
+    test_code = test_code.strip()
+    
+    # Debug: Print the cleaned code
+    print("Cleaned code:")
+    print(test_code)
+    
+    return test_code
 
 def main():
     test_dir = "tests"
