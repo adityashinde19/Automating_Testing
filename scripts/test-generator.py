@@ -20,7 +20,7 @@ def generate_test_cases(code_content, file_path):
     
     Return only the Python test code without any explanations or markdown formatting."""
 
-    response = client.chat.completions.create(
+    response = llm.chat.completions.create(
                   model="gpt4o",
                   messages=[
                       {"role": "system", "content": "You are a Python expert specializing in code quality and best practices. Your reviews are constructive, specific, and educational."},
