@@ -6,7 +6,7 @@ def generate_test_cases(code_content, file_path):
     llm = AzureChatOpenAI(
         azure_deployment="gpt4o",
         api_version="2024-08-01-preview",
-        api_key=os.getenv("AZURE_OPENAI_KEY"),
+        api_key=os.getenv("AZURE_OPENAI_API_KEY"),
         azure_endpoint="https://aressgenaisvc2.openai.azure.com/openai/deployments/gpt4o/chat/completions?api-version=2024-08-01-preview",
         temperature=0
     )
