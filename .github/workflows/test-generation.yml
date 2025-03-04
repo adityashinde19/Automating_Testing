@@ -1,45 +1,231 @@
-name: AI Test Generation and Execution
-
+name: Advanced Azure OpenAI Code Review and Regression Testing
+ 
 on:
-  push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
-
+    types: [opened, synchronize]
 jobs:
-  generate-and-run-tests:
+  review:
     runs-on: ubuntu-latest
-    environment: dev
-    name: AI Test Generation Job
-    
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install langchain-openai pytest coverage
-
-    - name: Run AI Test Generation
-      env:
-        AZURE_OPENAI_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
-      run: |
-        python scripts/ai_test_generator.py
-
-    - name: Run Tests with Coverage
-      run: |
-        coverage run -m pytest tests/ -v
-        coverage html
-        coverage report
-
-    - name: Upload Coverage Report
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-report
-        path: htmlcov/
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get changed files
+        id: changed-files
+        run: |
+          echo "files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | tr '\n' ' ')" >> $GITHUB_OUTPUT
+ 
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install openai requests pytest
+ 
+      - name: Review Code and Generate Test Cases
+        env:
+          AZURE_OPENAI_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          FILES: ${{ steps.changed-files.outputs.files }}
+        run: |
+          cat > review_and_test.py << 'EOL'
+          import os
+          import openai
+          import requests
+          import json
+          from pathlib import Path
+          import subprocess
+ 
+          def get_file_content(file_path):
+              try:
+                  return Path(file_path).read_text()
+              except:
+                  return ""
+ 
+          def get_file_history(file_path):
+              try:
+                  result = subprocess.run(['git', 'blame', file_path], capture_output=True, text=True)
+                  return result.stdout
+              except:
+                  return ""
+ 
+          def get_test_coverage(file_path):
+              return "No test coverage data available"
+ 
+          def analyze_complexity(content):
+              lines = content.split('\n')
+              indentation_levels = [len(line) - len(line.lstrip()) for line in lines if line.strip()]
+              max_complexity = max(indentation_levels) if indentation_levels else 0
+              return max_complexity
+ 
+          def post_review(review, suggestions=None):
+              url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/pulls/{os.environ['PR_NUMBER']}/reviews"
+              headers = {
+                  "Accept": "application/vnd.github.v3+json",
+                  "Authorization": f"token {os.environ['GITHUB_TOKEN']}"
+              }
+              if suggestions:
+                  review += "\n\n### Suggested Changes:\n" + "\n".join(suggestions)
+              data = {
+                  "body": review,
+                  "event": "COMMENT"
+              }
+              requests.post(url, headers=headers, json=data)
+ 
+          def get_commit_messages():
+              try:
+                  result = subprocess.run(['git', 'log', '-5', '--oneline'], capture_output=True, text=True)
+                  return result.stdout
+              except:
+                  return ""
+ 
+          def generate_test_cases(content):
+              client = openai.AzureOpenAI(
+                  api_key=os.environ["AZURE_OPENAI_KEY"],
+                  api_version="2024-06-01",
+                  azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"]
+              )
+ 
+              prompt = f"""Generate unit test cases for the following code:
+ 
+              Code:
+              ```
+              {content}
+              ```
+ 
+              Provide the test cases in Python using the pytest framework."""
+ 
+              response = client.chat.completions.create(
+                  model="gpt4o",
+                  messages=[
+                      {"role": "system", "content": "You are a senior software engineer generating unit test cases."},
+                      {"role": "user", "content": prompt}
+                  ],
+                  temperature=0.2,
+                  max_tokens=2000
+              )
+ 
+              return response.choices[0].message.content
+ 
+          def execute_test_cases(test_cases, file_path):
+              test_file = Path(file_path).stem + "_test.py"
+              with open(test_file, "w") as f:
+                  f.write(test_cases)
+              result = subprocess.run(['pytest', test_file], capture_output=True, text=True)
+              return result.stdout
+ 
+          client = openai.AzureOpenAI(
+              api_key=os.environ["AZURE_OPENAI_KEY"],
+              api_version="2024-06-01",
+              azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"]
+          )
+ 
+          changed_files = os.environ["FILES"].split()
+ 
+          for file_path in changed_files:
+              if not file_path.endswith(('.py', '.js', '.java', '.cpp', '.ts')):
+                  continue
+              content = get_file_content(file_path)
+              if not content:
+                  continue
+ 
+              file_history = get_file_history(file_path)
+              test_coverage = get_test_coverage(file_path)
+              complexity = analyze_complexity(content)
+              recent_commits = get_commit_messages()
+ 
+              prompt = f"""As a senior software engineer, perform a comprehensive code review with the following context:
+ 
+              File: {file_path}
+              Code Complexity Score: {complexity}
+              Test Coverage: {test_coverage}
+              Recent Commit History: {recent_commits}
+ 
+              Review this code for:
+              1. Potential bugs and edge cases
+              2. Security vulnerabilities and best practices
+              3. Performance optimizations
+              4. Code maintainability and readability
+              5. Design patterns and architecture
+              6. Test coverage recommendations
+              7. Documentation needs
+              8. Dependency management
+              9. Error handling
+              10. Scalability considerations
+ 
+              Also provide:
+              - Specific refactoring suggestions
+              - Examples of better implementations where applicable
+              - Impact analysis of changes
+              - Risk assessment
+              - Technical debt evaluation
+ 
+              Code:
+              ```
+              {content}
+              ```
+ 
+              File History Context:
+              {file_history}
+ 
+              Provide detailed, actionable feedback with code examples where relevant."""
+ 
+              response = client.chat.completions.create(
+                  model="gpt4o",
+                  messages=[
+                      {"role": "system", "content": "You are a senior software engineer performing a detailed code review. Focus on providing constructive, specific feedback with examples."},
+                      {"role": "user", "content": prompt}
+                  ],
+                  temperature=0.2,
+                  max_tokens=2000
+              )
+ 
+              review_content = response.choices[0].message.content
+              metrics = {
+                  "complexity_score": complexity,
+                  "reviewed_lines": len(content.split('\n')),
+                  "major_concerns": review_content.count('major concern'),
+                  "suggestions": review_content.count('suggest'),
+              }
+ 
+              review = f"""## Code Review for {file_path}
+ 
+              ### Metrics
+              - Complexity Score: {metrics['complexity_score']}
+              - Lines Reviewed: {metrics['reviewed_lines']}
+              - Major Concerns: {metrics['major_concerns']}
+              - Suggestions: {metrics['suggestions']}
+ 
+              ### Detailed Review
+              {review_content}
+              """
+              post_review(review)
+ 
+              # Generate and execute test cases
+              test_cases = generate_test_cases(content)
+              test_results = execute_test_cases(test_cases, file_path)
+ 
+              # Post test results
+              test_review = f"""## Test Results for {file_path}
+ 
+              ### Generated Test Cases
+              ```python
+              {test_cases}
+              ```
+ 
+              ### Test Execution Results
+              ```
+              {test_results}
+              ```
+              """
+              post_review(test_review)
+          EOL
+ 
+          python review_and_test.py
