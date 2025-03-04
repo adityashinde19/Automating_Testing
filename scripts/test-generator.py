@@ -1,14 +1,14 @@
 import os
-from langchain_openai import AzureChatOpenAI
-from langchain.schema import HumanMessage
+import openai
+import requests
+import json
+import re
 
 def generate_test_cases(code_content, file_path):
     llm = AzureChatOpenAI(
-        azure_deployment="gpt4o",
-        api_version="2024-08-01-preview",
         api_key=os.getenv("AZURE_OPENAI_KEY"),
-        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-        temperature=0
+        api_version="2024-08-01-preview",
+        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
     )
 
     prompt = f"""Generate comprehensive test cases for the following code. 
@@ -20,7 +20,15 @@ def generate_test_cases(code_content, file_path):
     
     Return only the Python test code without any explanations or markdown formatting."""
 
-    response = llm([HumanMessage(content=prompt)])
+    response = client.chat.completions.create(
+                  model="gpt4o",
+                  messages=[
+                      {"role": "system", "content": "You are a Python expert specializing in code quality and best practices. Your reviews are constructive, specific, and educational."},
+                      {"role": "user", "content": prompt}
+                  ],
+                  temperature=0.1,
+                  max_tokens=2500
+              )
     return response.content
 
 def main():
