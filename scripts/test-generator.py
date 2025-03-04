@@ -5,7 +5,7 @@ import json
 import re
 
 def generate_test_cases(code_content, file_path):
-    llm =openai.AzureOpenAI(
+    client =openai.AzureOpenAI(
         api_key=os.getenv("AZURE_OPENAI_KEY"),
         api_version="2024-08-01-preview",
         azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
@@ -20,10 +20,10 @@ def generate_test_cases(code_content, file_path):
     
     Return only the Python test code without any explanations or markdown formatting."""
 
-    response = llm.chat.completions.create(
+    response = client.chat.completions.create(
                   model="gpt4o",
                   messages=[
-                      {"role": "system", "content": "You are a Python expert specializing in code quality and best practices. Your reviews are constructive, specific, and educational."},
+                      {"role": "system", "content": "You are a Python expert specializing in code testing regression and to overview code."},
                       {"role": "user", "content": prompt}
                   ],
                   temperature=0.1,
