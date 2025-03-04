@@ -30,7 +30,7 @@ jobs:
       env:
         AZURE_OPENAI_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
       run: |
-        python scripts/ai_test_generator.py
+        python scripts/test_generator.py
 
     - name: Run Tests with Coverage
       run: |
