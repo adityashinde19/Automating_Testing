@@ -5,7 +5,7 @@ import json
 import re
 
 def generate_test_cases(code_content, file_path):
-    llm = AzureChatOpenAI(
+    llm =openai.AzureOpenAI(
         api_key=os.getenv("AZURE_OPENAI_KEY"),
         api_version="2024-08-01-preview",
         azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
