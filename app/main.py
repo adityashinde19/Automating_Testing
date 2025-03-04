@@ -3,12 +3,14 @@ import logging
 from web_analyzer import WebAnalyzer
 from test_executor import TestExecutor
 from report_generator import ReportGenerator
+import time
 
 logger = logging.getLogger(__name__)
 
 def main(url):
     try:
         # Phase 1: Analyze and Generate Test Cases
+        #alright
         analyzer = WebAnalyzer(url)
         screenshot, dom_html = analyzer.capture_page_info()
         test_cases = analyzer.generate_test_cases(dom_html)
